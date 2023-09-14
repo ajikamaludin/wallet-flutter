@@ -15,13 +15,30 @@ class _FormTrxScreenState extends State<FormTrxScreen> {
   final amountController = TextEditingController();
   final descController = TextEditingController();
 
-  String _isExpense = 'Expense';
+  String _isExpense = types[0];
+  String? _errorAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.trx != null) {
+      amountController.text = '${widget.trx!.amount}';
+      descController.text = widget.trx!.description;
+      _isExpense = widget.trx!.isExpense == 1 ? types[1] : types[0];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Transactions'),
+          title: const Text('Transaction'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -31,10 +48,11 @@ class _FormTrxScreenState extends State<FormTrxScreen> {
                 TextField(
                     controller: amountController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Amount',
                       labelText: 'Amount',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      errorText: _errorAmount,
                     )),
                 const SizedBox(height: 20),
                 TextField(
@@ -68,41 +86,67 @@ class _FormTrxScreenState extends State<FormTrxScreen> {
                 ),
                 const SizedBox(height: 30),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: widget.trx == null
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        _addItem();
-                      },
+                      onPressed: onSaveHandle,
                       style: const ButtonStyle(
                         minimumSize: MaterialStatePropertyAll(Size(100, 45)),
                       ),
                       child: const Text(
-                        'save',
+                        'Save',
                         style: TextStyle(fontSize: 18),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // HANDLE HERE DELETE
-                      },
-                      style: ButtonStyle(
-                        minimumSize:
-                            const MaterialStatePropertyAll(Size(100, 45)),
-                        backgroundColor:
-                            MaterialStatePropertyAll(Colors.red.shade400),
-                      ),
-                      child: const Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    ),
+                    widget.trx != null
+                        ? ElevatedButton(
+                            onPressed: handleDelete,
+                            style: ButtonStyle(
+                              minimumSize:
+                                  const MaterialStatePropertyAll(Size(100, 45)),
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Colors.red.shade400),
+                            ),
+                            child: const Text(
+                              'Delete',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          )
+                        : const Center(),
                   ],
                 )
               ],
             ),
           ),
         ));
+  }
+
+  void handleDelete() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm'),
+          content: const Text('Are you sure want delete ?'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cencel');
+                _deleteItem();
+              },
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Ok'),
+              child: const Text('Cencel'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -112,35 +156,43 @@ class _FormTrxScreenState extends State<FormTrxScreen> {
     super.dispose();
   }
 
-  void _addItem() {
+  void onSaveHandle() {
     if (amountController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            icon: const Icon(Icons.warning),
-            content: const Text(
-              'Amount required',
-              textAlign: TextAlign.center,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'Ok'),
-                child: const Text(
-                  'Ok',
-                ),
-              ),
-            ],
-          );
-        },
-      );
+      setState(() {
+        _errorAmount = 'amount required';
+      });
       return;
     }
+    if (widget.trx != null) {
+      _updateItem();
+      return;
+    }
+    _addItem();
+  }
 
-    DatabaseSQLite.createItem(amountController.text, descController.text,
+  void _addItem() {
+    DatabaseHelper.instance
+        .createItem(amountController.text, descController.text,
             _isExpense == 'Income' ? 0 : 1)
-        .then((value) => Navigator.of(context).pop())
+        .then((value) => Navigator.of(context).pop(true))
         .whenComplete(() => ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('transaction saved'))));
+  }
+
+  void _updateItem() {
+    DatabaseHelper.instance
+        .updateItem(widget.trx!.id, amountController.text, descController.text,
+            _isExpense == types[0] ? 0 : 1)
+        .then((value) => Navigator.of(context).pop(true))
+        .whenComplete(() => ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('transaction saved'))));
+  }
+
+  void _deleteItem() {
+    DatabaseHelper.instance
+        .deleteItem(widget.trx!.id)
+        .then((value) => Navigator.of(context).pop(true))
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('transaction deleted'))));
   }
 }

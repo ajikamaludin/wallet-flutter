@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wallet/component/bar_chart.dart';
 import 'package:wallet/component/card_amount.dart';
 import 'package:wallet/component/floating_add_button.dart';
@@ -13,20 +14,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int balance = 0;
-  int expense = 0;
-  int income = 0;
+  String balance = '';
+  String expense = '';
+  String income = '';
 
   @override
   void initState() {
     super.initState();
-    DatabaseSQLite.getBalance().then((value) {
-      setState(() {
-        balance = value;
-      });
-    });
-    DatabaseSQLite.getTotalIncome().then((value) => income = value);
-    DatabaseSQLite.getTotalExpense().then((value) => expense = value);
+    _refresh();
   }
 
   @override
@@ -61,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ))
           ],
         ),
-        floatingActionButton: const FloatingAddButton(),
+        floatingActionButton: FloatingAddButton(
+          refresh: _refresh,
+        ),
         body: SingleChildScrollView(
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: CardAmount(
                   title: 'Balance',
-                  amount: 'Rp. $balance',
+                  amount: balance,
                   color: Colors.blue.shade400,
                 )),
             Padding(
@@ -81,13 +78,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                         child: CardAmount(
                       title: 'Income',
-                      amount: 'Rp. $income',
+                      amount: income,
                       color: Colors.green.shade400,
                     )),
                     Expanded(
                         child: CardAmount(
                       title: 'Expense',
-                      amount: 'Rp. $expense',
+                      amount: expense,
                       color: Colors.red.shade400,
                     ))
                   ],
@@ -99,22 +96,44 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
+                  onPressed: () async {
+                    final result =
+                        await Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) {
                         return const ListTrxScreen();
                       },
                     ));
+                    if (result != null) {
+                      _refresh();
+                    }
                   },
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Riwayat transaksi'),
+                      Text('History Transaction'),
                       Icon(Icons.arrow_forward)
                     ],
                   )),
             ),
           ],
         )));
+  }
+
+  void _refresh() {
+    DatabaseHelper.instance.getBalance().then((value) {
+      setState(() {
+        balance = NumberFormat.currency(locale: "id").format(value);
+      });
+    });
+    DatabaseHelper.instance.getTotalIncome().then((value) {
+      setState(() {
+        income = NumberFormat.currency(locale: "id").format(value);
+      });
+    });
+    DatabaseHelper.instance.getTotalExpense().then((value) {
+      setState(() {
+        expense = NumberFormat.currency(locale: "id").format(value);
+      });
+    });
   }
 }
