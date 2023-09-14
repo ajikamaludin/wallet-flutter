@@ -1,9 +1,9 @@
 class Transaction {
   num amount;
   String description;
-  num type;
+  num isExpense;
 
-  Transaction(this.amount, this.description, this.type);
+  Transaction(this.amount, this.description, this.isExpense);
 }
 
 List<Transaction> dummyTransactions = [

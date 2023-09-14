@@ -2,10 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:wallet/component/bar_chart.dart';
 import 'package:wallet/component/card_amount.dart';
 import 'package:wallet/component/floating_add_button.dart';
+import 'package:wallet/db/database.dart';
 import 'package:wallet/list_trx_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int balance = 0;
+  int expense = 0;
+  int income = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    DatabaseSQLite.getBalance().then((value) {
+      setState(() {
+        balance = value;
+      });
+    });
+    DatabaseSQLite.getTotalIncome().then((value) => income = value);
+    DatabaseSQLite.getTotalExpense().then((value) => expense = value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +38,28 @@ class HomeScreen extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.teal.shade600,
+          actions: [
+            IconButton(
+                onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('About'),
+                          content: const Text('Wallet App By Aji Kamaludin'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'Ok'),
+                              child: const Text('Ok'),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                icon: const Icon(
+                  Icons.info_outline,
+                  color: Colors.white,
+                ))
+          ],
         ),
         floatingActionButton: const FloatingAddButton(),
         body: SingleChildScrollView(
@@ -26,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: CardAmount(
                   title: 'Balance',
-                  amount: 'Rp. 10.000',
+                  amount: 'Rp. $balance',
                   color: Colors.blue.shade400,
                 )),
             Padding(
@@ -37,13 +81,13 @@ class HomeScreen extends StatelessWidget {
                     Expanded(
                         child: CardAmount(
                       title: 'Income',
-                      amount: 'Rp. 10.000',
+                      amount: 'Rp. $income',
                       color: Colors.green.shade400,
                     )),
                     Expanded(
                         child: CardAmount(
                       title: 'Expense',
-                      amount: 'Rp. 10.000',
+                      amount: 'Rp. $expense',
                       color: Colors.red.shade400,
                     ))
                   ],

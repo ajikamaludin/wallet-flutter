@@ -17,7 +17,7 @@ class ListTrxScreen extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: 20,
                 itemBuilder: (context, index) {
-                  return Column(
+                  return const Column(
                     children: [ItemTrx(), Divider()],
                   );
                 })));
