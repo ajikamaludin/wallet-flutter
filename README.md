@@ -1,7 +1,16 @@
 # Wallet Flutter
 
 Sebuah project flutter aplikasi android yang digunakan untuk memenuhi submission belajar flutter pemula di dicoding,
-aplikasi ini terinspirasi dari project sebelumnya yaitu [Wallet Android](https://github.com/ajikamaludin/wallet-android) yang digunakan untuk #JuaraAndroid2022
+aplikasi ini terinspirasi dari project saya sebelumnya yaitu [Wallet Android](https://github.com/ajikamaludin/wallet-android) yang digunakan untuk #JuaraAndroid2022
+
+### Tested on
+
+- [x] Android
+- [ ] iOS (Untested)
+- [ ] Web (Untested)
+- [ ] Linux (Untested)
+- [ ] Windows (Untested)
+- [ ] MaxOS (Untested)
 
 # Screenshot
 
