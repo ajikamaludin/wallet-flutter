@@ -103,10 +103,40 @@ class DatabaseHelper {
 
   Future<List<Transaction>> getItems() async {
     final db = await instance.db;
-    var trx = await db.query('trx', orderBy: 'createdAt DESC');
+    var trx = await db.query('trx',
+        orderBy: 'createdAt DESC',
+        where: "strftime('%Y-%m-%d', createdAt) = '2023-09-14'");
     List<Transaction> trxList =
         trx.isNotEmpty ? trx.map((c) => Transaction.fromMap(c)).toList() : [];
     return trxList;
+  }
+
+  Future<List<double>> getItemChart() async {
+    List<double> list = [];
+    final db = await instance.db;
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday));
+    final endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+    final dateFormat = DateFormat('yyyy-MM-dd');
+
+    for (var day = startOfWeek;
+        day.isBefore(endOfWeek);
+        day = day.add(const Duration(days: 1))) {
+      final date = dateFormat.format(day);
+      final rincome = await db.rawQuery(
+          "SELECT SUM(amount) as amount, createdAt FROM trx WHERE is_expense = 0 AND strftime('%Y-%m-%d', createdAt) = '$date'");
+      var mincome = double.tryParse(rincome[0]['amount'].toString());
+      mincome ??= 0;
+      final rexpense = await db.rawQuery(
+          "SELECT SUM(amount) as amount, createdAt FROM trx WHERE is_expense = 1 AND strftime('%Y-%m-%d', createdAt) = '$date'");
+      var mexpense = double.tryParse(rexpense[0]['amount'].toString());
+      mexpense ??= 0;
+      double value = mincome - mexpense;
+      list.add(value);
+    }
+
+    return list;
   }
 
   Future<int> countItems() async {

@@ -15,7 +15,7 @@ class _FormTrxScreenState extends State<FormTrxScreen> {
   final amountController = TextEditingController();
   final descController = TextEditingController();
 
-  String _isExpense = types[0];
+  String _isExpense = types[1];
   String? _errorAmount;
 
   @override

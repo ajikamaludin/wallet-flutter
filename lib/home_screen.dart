@@ -18,6 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String expense = '';
   String income = '';
 
+  List<double> listBar = [0, 0, 0, 0, 0, 0, 0];
+  double maxValue = 0;
+
   @override
   void initState() {
     super.initState();
@@ -89,12 +92,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ))
                   ],
                 )),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: TrxBarChart(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: TrxBarChart(
+                list: listBar,
+                max: maxValue,
+              ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               child: OutlinedButton(
                   onPressed: () async {
                     final result =
@@ -133,6 +139,14 @@ class _HomeScreenState extends State<HomeScreen> {
     DatabaseHelper.instance.getTotalExpense().then((value) {
       setState(() {
         expense = NumberFormat.currency(locale: "id").format(value);
+      });
+    });
+    DatabaseHelper.instance.getItemChart().then((value) {
+      setState(() {
+        listBar = value;
+        maxValue = listBar
+            .reduce((max, current) => max > current ? max : current)
+            .toDouble();
       });
     });
   }

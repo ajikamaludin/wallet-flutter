@@ -1,20 +1,34 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class _BarChart extends StatelessWidget {
-  const _BarChart();
+class TrxBarChart extends StatefulWidget {
+  const TrxBarChart({Key? key, required this.list, required this.max})
+      : super(key: key);
+
+  final List<double> list;
+  final double max;
+
+  @override
+  State<TrxBarChart> createState() => _TrxBarChartState();
+}
+
+class _TrxBarChartState extends State<TrxBarChart> {
+  _TrxBarChartState();
 
   @override
   Widget build(BuildContext context) {
-    return BarChart(
-      BarChartData(
-        barTouchData: barTouchData,
-        titlesData: titlesData,
-        borderData: borderData,
-        barGroups: barGroups,
-        gridData: const FlGridData(show: false),
-        alignment: BarChartAlignment.spaceAround,
-        maxY: 16000 + 5000,
+    return AspectRatio(
+      aspectRatio: 2,
+      child: BarChart(
+        BarChartData(
+          barTouchData: barTouchData,
+          titlesData: titlesData,
+          borderData: FlBorderData(show: false),
+          barGroups: _chartGroups(),
+          gridData: const FlGridData(show: false),
+          alignment: BarChartAlignment.spaceAround,
+          maxY: widget.max + (widget.max / 2),
+        ),
       ),
     );
   }
@@ -41,6 +55,17 @@ class _BarChart extends StatelessWidget {
           },
         ),
       );
+
+  List<BarChartGroupData> _chartGroups() {
+    return widget.list
+        .asMap()
+        .entries
+        .map((point) => BarChartGroupData(
+            x: point.key,
+            barRods: [BarChartRodData(toY: point.value)],
+            showingTooltipIndicators: [0]))
+        .toList();
+  }
 
   Widget getTitles(double value, TitleMeta meta) {
     const style = TextStyle(
@@ -101,91 +126,4 @@ class _BarChart extends StatelessWidget {
           sideTitles: SideTitles(showTitles: false),
         ),
       );
-
-  FlBorderData get borderData => FlBorderData(
-        show: false,
-      );
-
-  List<BarChartGroupData> get barGroups => [
-        BarChartGroupData(
-          x: 0,
-          barRods: [
-            BarChartRodData(
-              toY: 8000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 1,
-          barRods: [
-            BarChartRodData(
-              toY: 10000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 2,
-          barRods: [
-            BarChartRodData(
-              toY: 14000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 3,
-          barRods: [
-            BarChartRodData(
-              toY: 15000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 4,
-          barRods: [
-            BarChartRodData(
-              toY: 13000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 5,
-          barRods: [
-            BarChartRodData(
-              toY: 10000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 6,
-          barRods: [
-            BarChartRodData(
-              toY: 16000,
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-      ];
-}
-
-class TrxBarChart extends StatefulWidget {
-  const TrxBarChart({super.key});
-
-  @override
-  State<StatefulWidget> createState() => TrxBarChartState();
-}
-
-class TrxBarChartState extends State<TrxBarChart> {
-  @override
-  Widget build(BuildContext context) {
-    return const AspectRatio(
-      aspectRatio: 1.6,
-      child: _BarChart(),
-    );
-  }
 }
