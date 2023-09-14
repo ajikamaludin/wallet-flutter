@@ -1,6 +1,6 @@
 # Wallet Flutter
 
-Sebuah project flutter aplikasi android yang digunakan untuk memenuhi submission belajar flutter pemula di dicoding,
+Sebuah project flutter aplikasi android sebagai sistem pencatatan keluar masukanya arus uang pribadi, project ini dibuat untuk memenuhi submission `Belajar Membuat Aplikasi Flutter untuk Pemula` di dicoding,
 aplikasi ini terinspirasi dari project saya sebelumnya yaitu [Wallet Android](https://github.com/ajikamaludin/wallet-android) yang digunakan untuk #JuaraAndroid2022
 
 ### Tested on
