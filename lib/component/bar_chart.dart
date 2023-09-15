@@ -1,19 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class TrxBarChart extends StatefulWidget {
+class TrxBarChart extends StatelessWidget {
   const TrxBarChart({Key? key, required this.list, required this.max})
       : super(key: key);
 
   final List<double> list;
   final double max;
-
-  @override
-  State<TrxBarChart> createState() => _TrxBarChartState();
-}
-
-class _TrxBarChartState extends State<TrxBarChart> {
-  _TrxBarChartState();
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +20,7 @@ class _TrxBarChartState extends State<TrxBarChart> {
           barGroups: _chartGroups(),
           gridData: const FlGridData(show: false),
           alignment: BarChartAlignment.spaceAround,
-          maxY: widget.max + (widget.max / 2),
+          maxY: max + (max / 2),
         ),
       ),
     );
@@ -57,7 +50,7 @@ class _TrxBarChartState extends State<TrxBarChart> {
       );
 
   List<BarChartGroupData> _chartGroups() {
-    return widget.list
+    return list
         .asMap()
         .entries
         .map((point) => BarChartGroupData(
