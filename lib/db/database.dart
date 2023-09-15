@@ -104,8 +104,7 @@ class DatabaseHelper {
   Future<List<Transaction>> getItems() async {
     final db = await instance.db;
     var trx = await db.query('trx',
-        orderBy: 'createdAt DESC',
-        where: "strftime('%Y-%m-%d', createdAt) = '2023-09-14'");
+        orderBy: 'createdAt DESC');
     List<Transaction> trxList =
         trx.isNotEmpty ? trx.map((c) => Transaction.fromMap(c)).toList() : [];
     return trxList;
